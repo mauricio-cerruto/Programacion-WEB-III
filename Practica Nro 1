@@ -1,0 +1,279 @@
+// 1. Contar vocales en un texto
+function contarVocales(texto) {
+    const vocales = {a: 0, e: 0, i: 0, o: 0, u: 0};
+    for (let letra of texto.toLowerCase()) {
+        if (vocales.hasOwnProperty(letra)) {
+            vocales[letra]++;
+        }
+    }
+    return vocales;
+}
+
+let obj1 = contarVocales("euforia");
+console.log("1.", obj1);
+
+
+
+// 2. Invertir orden de palabras/frase
+function invertirFrase(frase) {
+    return frase.split('').reverse().join('');
+}
+
+let cad2 = invertirFrase("abcd");
+console.log("2.", cad2);
+
+
+
+// 3. Separar pares e impares
+function separarParesImpares(numeros) {
+    const resultado = {pares: [], impares: []};
+    for (let num of numeros) {
+        if (num % 2 === 0) {
+            resultado.pares.push(num);
+        } else {
+            resultado.impares.push(num);
+        }
+    }
+    return resultado;
+}
+
+let obj3 = separarParesImpares([1,2,3,4,5]);
+console.log("3.", obj3);
+
+
+
+// 4. Encontrar mayor y menor
+function encontrarMayorMenor(numeros) {
+    let mayor = numeros[0];
+    let menor = numeros[0];
+    
+    for (let num of numeros) {
+        if (num > mayor) mayor = num;
+        if (num < menor) menor = num;
+    }
+    
+    return {mayor, menor};
+}
+
+let obj4 = encontrarMayorMenor([3,1,5,4,2]);
+console.log("4.", obj4);
+
+
+
+// 5. Verificar palíndromo
+function esPalindromo(palabra) {
+    let invertida = palabra.split('').reverse().join('');
+    return palabra === invertida;
+}
+
+let band5a = esPalindromo("oruro");
+let band5b = esPalindromo("hola");
+console.log("5. oruro:", band5a);
+console.log("5. hola:", band5b);
+
+
+
+// 6. Desestructuración - primeros dos elementos
+const arreglo6 = [10, 20, 30, 40, 50];
+const [primero, segundo] = arreglo6;
+console.log("6. Primero:", primero);
+console.log("6. Segundo:", segundo);
+
+
+// 7. Desestructuración - resto de elementos
+const arreglo7 = [100, 200, 300, 400, 500];
+const [primer, segundo2, ...resto] = arreglo7;
+console.log("7. Resto:", resto);
+
+
+
+// 8. Función callback después de 2 segundos
+console.log("8. Iniciando callback...");
+function miCallback() {
+    console.log("8. Callback ejecutado después de 2 segundos");
+}
+setTimeout(miCallback, 2000);
+
+
+
+// 9. Promesa con mensaje de éxito después de 3 segundos
+console.log("9. Iniciando promesa...");
+const promesa9 = new Promise((resolve) => {
+    setTimeout(() => {
+        resolve("9. ¡Éxito después de 3 segundos!");
+    }, 3000);
+});
+
+promesa9.then(mensaje => {
+    console.log(mensaje);
+});
+
+
+
+// 10. ¿Cuándo usar callback vs promesa?
+console.log("10. Callback: Operaciones simples asíncronas, eventos");
+console.log("10. Promesa: Operaciones complejas, encadenamiento, mejor manejo de errores");
+
+
+
+// 11. Encadenamiento de promesas
+function esperar(ms, valor) {
+    return new Promise(resolve => setTimeout(() => resolve(valor), ms));
+}
+
+console.log("11. Encadenamiento de promesas:");
+esperar(1000, "Paso 1")
+    .then(resultado => {
+        console.log(resultado);
+        return esperar(1000, "Paso 2");
+    })
+    .then(resultado => {
+        console.log(resultado);
+        return esperar(1000, "Paso 3");
+    })
+    .then(resultado => {
+        console.log(resultado);
+    });
+
+
+
+// 12. Callback hell a async/await
+console.log("12. Ejemplo callback hell -> async/await");
+
+// Callback hell (original)
+setTimeout(() => {
+    console.log("Primera operación");
+    setTimeout(() => {
+        console.log("Segunda operación");
+        setTimeout(() => {
+            console.log("Tercera operación");
+        }, 1000);
+    }, 1000);
+}, 1000);
+
+// Async/await (mejorado)
+async function operacionesAsync() {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    console.log("Primera operación (async)");
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    console.log("Segunda operación (async)");
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    console.log("Tercera operación (async)");
+}
+operacionesAsync();
+
+
+
+// 13. Promesas anidadas a async/await
+console.log("13. Promesas anidadas -> async/await");
+
+// Promesas anidadas (original)
+esperar(1000, "Datos usuario")
+    .then(usuario => {
+        return esperar(1000, "Perfil de " + usuario)
+            .then(perfil => {
+                return esperar(1000, "Amigos de " + usuario)
+                    .then(amigos => {
+                        console.log("13. Resultado:", usuario, perfil, amigos);
+                    });
+            });
+    });
+
+// Async/await (mejorado)
+async function obtenerDatos() {
+    const usuario = await esperar(1000, "Datos usuario");
+    const perfil = await esperar(1000, "Perfil de " + usuario);
+    const amigos = await esperar(1000, "Amigos de " + usuario);
+    console.log("13. Resultado async:", usuario, perfil, amigos);
+}
+obtenerDatos();
+
+
+
+// 14. Convertir promesa a callback
+console.log("14. Promesa a callback");
+
+// Promesa original
+function promesaOriginal() {
+    return new Promise(resolve => {
+        setTimeout(() => resolve("Datos de la promesa"), 1000);
+    });
+}
+
+// Convertida a callback
+function promesaACallback(callback) {
+    promesaOriginal()
+        .then(resultado => callback(null, resultado))
+        .catch(error => callback(error, null));
+}
+
+// Uso
+promesaACallback((error, resultado) => {
+    if (error) {
+        console.log("14. Error:", error);
+    } else {
+        console.log("14. Resultado callback:", resultado);
+    }
+});
+
+
+
+// 15. Convertir callback a promesa
+console.log("15. Callback a promesa");
+
+// Callback original
+function callbackOriginal(dato, callback) {
+    setTimeout(() => {
+        callback(null, "Procesado: " + dato);
+    }, 1000);
+}
+
+// Convertida a promesa
+function callbackAPromesa(dato) {
+    return new Promise((resolve, reject) => {
+        callbackOriginal(dato, (error, resultado) => {
+            if (error) reject(error);
+            else resolve(resultado);
+        });
+    });
+}
+
+// Uso
+callbackAPromesa("mi dato")
+    .then(resultado => console.log("15. Resultado promesa:", resultado))
+    .catch(error => console.log("15. Error:", error));
+
+
+
+// 16. Migrar promesas a async/await
+console.log("16. Promesas a async/await");
+
+// Con promesas (original)
+function conPromesas() {
+    return esperar(1000, "Paso 1")
+        .then(resultado1 => {
+            return esperar(1000, resultado1 + " -> Paso 2");
+        })
+        .then(resultado2 => {
+            return esperar(1000, resultado2 + " -> Paso 3");
+        });
+}
+
+// Con async/await (migrado)
+async con conAsyncAwait() {
+    const resultado1 = await esperar(1000, "Paso 1");
+    const resultado2 = await esperar(1000, resultado1 + " -> Paso 2");
+    const resultado3 = await esperar(1000, resultado2 + " -> Paso 3");
+    return resultado3;
+}
+
+// Ejecutar ambas
+conPromesas().then(resultado => {
+    console.log("16. Con promesas:", resultado);
+});
+
+conAsyncAwait().then(resultado => {
+    console.log("16. Con async/await:", resultado);
+});
+
+
