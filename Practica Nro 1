@@ -1,3 +1,10 @@
+Nombre Completo: Herlan Mauricio Cerruto Salazar
+C.I: 10954648 L.P
+Carrera: Informatica
+Materia : INF-133 PROGRAMACIÓN WEB 3
+Fecha: 23/09/2025
+
+
 // 1. Contar vocales en un texto
 function contarVocales(texto) {
     const vocales = {a: 0, e: 0, i: 0, o: 0, u: 0};
@@ -140,7 +147,7 @@ esperar(1000, "Paso 1")
 // 12. Callback hell a async/await
 console.log("12. Ejemplo callback hell -> async/await");
 
-// Callback hell (original)
+
 setTimeout(() => {
     console.log("Primera operación");
     setTimeout(() => {
@@ -151,7 +158,7 @@ setTimeout(() => {
     }, 1000);
 }, 1000);
 
-// Async/await (mejorado)
+
 async function operacionesAsync() {
     await new Promise(resolve => setTimeout(resolve, 1000));
     console.log("Primera operación (async)");
@@ -167,7 +174,7 @@ operacionesAsync();
 // 13. Promesas anidadas a async/await
 console.log("13. Promesas anidadas -> async/await");
 
-// Promesas anidadas (original)
+
 esperar(1000, "Datos usuario")
     .then(usuario => {
         return esperar(1000, "Perfil de " + usuario)
@@ -179,7 +186,7 @@ esperar(1000, "Datos usuario")
             });
     });
 
-// Async/await (mejorado)
+
 async function obtenerDatos() {
     const usuario = await esperar(1000, "Datos usuario");
     const perfil = await esperar(1000, "Perfil de " + usuario);
@@ -193,21 +200,21 @@ obtenerDatos();
 // 14. Convertir promesa a callback
 console.log("14. Promesa a callback");
 
-// Promesa original
+
 function promesaOriginal() {
     return new Promise(resolve => {
         setTimeout(() => resolve("Datos de la promesa"), 1000);
     });
 }
 
-// Convertida a callback
+
 function promesaACallback(callback) {
     promesaOriginal()
         .then(resultado => callback(null, resultado))
         .catch(error => callback(error, null));
 }
 
-// Uso
+
 promesaACallback((error, resultado) => {
     if (error) {
         console.log("14. Error:", error);
@@ -221,14 +228,14 @@ promesaACallback((error, resultado) => {
 // 15. Convertir callback a promesa
 console.log("15. Callback a promesa");
 
-// Callback original
+
 function callbackOriginal(dato, callback) {
     setTimeout(() => {
         callback(null, "Procesado: " + dato);
     }, 1000);
 }
 
-// Convertida a promesa
+
 function callbackAPromesa(dato) {
     return new Promise((resolve, reject) => {
         callbackOriginal(dato, (error, resultado) => {
@@ -238,7 +245,7 @@ function callbackAPromesa(dato) {
     });
 }
 
-// Uso
+
 callbackAPromesa("mi dato")
     .then(resultado => console.log("15. Resultado promesa:", resultado))
     .catch(error => console.log("15. Error:", error));
@@ -248,7 +255,7 @@ callbackAPromesa("mi dato")
 // 16. Migrar promesas a async/await
 console.log("16. Promesas a async/await");
 
-// Con promesas (original)
+
 function conPromesas() {
     return esperar(1000, "Paso 1")
         .then(resultado1 => {
@@ -259,7 +266,7 @@ function conPromesas() {
         });
 }
 
-// Con async/await (migrado)
+
 async con conAsyncAwait() {
     const resultado1 = await esperar(1000, "Paso 1");
     const resultado2 = await esperar(1000, resultado1 + " -> Paso 2");
@@ -267,7 +274,7 @@ async con conAsyncAwait() {
     return resultado3;
 }
 
-// Ejecutar ambas
+
 conPromesas().then(resultado => {
     console.log("16. Con promesas:", resultado);
 });
