@@ -1,1 +1,388 @@
+config.
+-db.js-.
+import mysql from 'mysql2/promise';
 
+export const db = mysql.createPool({
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'crud_db'
+});
+controladores.
+-categoriasControlador.js-.
+import { 
+    obtenerTodas, 
+    obtenerPorId, 
+    crear, 
+    actualizar, 
+    eliminar, 
+    obtenerProductosPorCategoria 
+} from '../modelos/categoriasModelo.js';
+
+export const obtenerCategorias = async (req, res) => {
+    try {
+        const resultado = await obtenerTodas();
+        res.status(200).json(resultado);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener las categorías' });
+    }
+};
+
+export const obtenerCategoria = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const categoria = await obtenerPorId(id);
+        
+        if (!categoria) {
+            return res.status(404).json({ error: 'Categoría no encontrada' });
+        }
+
+        const productos = await obtenerProductosPorCategoria(id);
+        
+        res.status(200).json({
+            ...categoria,
+            productos: productos
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener la categoría' });
+    }
+};
+
+export const crearCategoria = async (req, res) => {
+    try {
+        const { nombre, descripcion } = req.body;
+        
+        if (!nombre) {
+            return res.status(400).json({ error: 'El nombre es obligatorio' });
+        }
+
+        const id = await crear({ nombre, descripcion });
+        res.status(201).json({
+            id: id,
+            message: 'Categoría creada exitosamente'
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al crear la categoría' });
+    }
+};
+
+export const actualizarCategoria = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const { nombre, descripcion } = req.body;
+
+        if (!nombre) {
+            return res.status(400).json({ error: 'El nombre es obligatorio' });
+        }
+
+        const resultado = await actualizar(id, { nombre, descripcion });
+
+        if (resultado.affectedRows === 0) {
+            return res.status(404).json({ error: 'Categoría no encontrada' });
+        }
+
+        res.status(200).json({ message: 'Categoría actualizada exitosamente' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al actualizar la categoría' });
+    }
+};
+
+export const eliminarCategoria = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const resultado = await eliminar(id);
+
+        if (resultado.affectedRows === 0) {
+            return res.status(404).json({ error: 'Categoría no encontrada' });
+        }
+
+        res.status(200).json({ message: 'Categoría y sus productos eliminados exitosamente' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al eliminar la categoría' });
+    }
+};
+-productosControlador.js-.
+import { 
+    obtenerTodos, 
+    obtenerPorId, 
+    crear, 
+    actualizar, 
+    actualizarStock, 
+    eliminar 
+} from '../modelos/productosModelo.js';
+
+export const obtenerProductos = async (req, res) => {
+    try {
+        const resultado = await obtenerTodos();
+        res.status(200).json(resultado);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener los productos' });
+    }
+};
+
+export const obtenerProducto = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const producto = await obtenerPorId(id);
+
+        if (!producto) {
+            return res.status(404).json({ error: 'Producto no encontrado' });
+        }
+
+        res.status(200).json(producto);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener el producto' });
+    }
+};
+
+export const crearProducto = async (req, res) => {
+    try {
+        const { nombre, precio, stock, categoria_id } = req.body;
+        
+        if (!nombre || !precio || !stock || !categoria_id) {
+            return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+        }
+
+        const id = await crear({ nombre, precio, stock, categoria_id });
+        res.status(201).json({
+            id: id,
+            message: 'Producto creado exitosamente'
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al crear el producto' });
+    }
+};
+
+export const actualizarProducto = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const { nombre, precio, stock, categoria_id } = req.body;
+
+        if (!nombre || !precio || !stock || !categoria_id) {
+            return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+        }
+
+        const resultado = await actualizar(id, { nombre, precio, stock, categoria_id });
+
+        if (resultado.affectedRows === 0) {
+            return res.status(404).json({ error: 'Producto no encontrado' });
+        }
+
+        res.status(200).json({ message: 'Producto actualizado exitosamente' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al actualizar el producto' });
+    }
+};
+
+export const actualizarStockProducto = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const { cantidad } = req.body;
+
+        if (cantidad === undefined) {
+            return res.status(400).json({ error: 'La cantidad es obligatoria' });
+        }
+
+        const resultado = await actualizarStock(id, cantidad);
+
+        if (resultado.affectedRows === 0) {
+            return res.status(404).json({ error: 'Producto no encontrado' });
+        }
+
+        res.status(200).json({ message: `Stock actualizado exitosamente (${cantidad >= 0 ? '+' : ''}${cantidad})` });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al actualizar el stock' });
+    }
+};
+
+export const eliminarProducto = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const resultado = await eliminar(id);
+
+        if (resultado.affectedRows === 0) {
+            return res.status(404).json({ error: 'Producto no encontrado' });
+        }
+
+        res.status(200).json({ message: 'Producto eliminado exitosamente' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al eliminar el producto' });
+    }
+};
+modelos.
+-categoriasModelo.js-.
+import { db } from '../config/db.js';
+
+export const obtenerTodas = async () => {
+    const [resultado] = await db.query('SELECT * FROM categorias ORDER BY fecha_alta DESC');
+    return resultado;
+};
+
+export const obtenerPorId = async (id) => {
+    const [resultado] = await db.query('SELECT * FROM categorias WHERE id = ?', [id]);
+    return resultado[0];
+};
+
+export const crear = async (categoria) => {
+    const { nombre, descripcion } = categoria;
+    const [resultado] = await db.query(
+        'INSERT INTO categorias (nombre, descripcion) VALUES (?, ?)',
+        [nombre, descripcion]
+    );
+    return resultado.insertId;
+};
+
+export const actualizar = async (id, categoria) => {
+    const { nombre, descripcion } = categoria;
+    const [resultado] = await db.query(
+        'UPDATE categorias SET nombre = ?, descripcion = ?, fecha_act = CURRENT_TIMESTAMP WHERE id = ?',
+        [nombre, descripcion, id]
+    );
+    return resultado;
+};
+
+export const eliminar = async (id) => {
+    const [resultado] = await db.query('DELETE FROM categorias WHERE id = ?', [id]);
+    return resultado;
+};
+
+export const obtenerProductosPorCategoria = async (id) => {
+    const [resultado] = await db.query('SELECT * FROM productos WHERE categoria_id = ?', [id]);
+    return resultado;
+};
+-productosModelo.js-.
+import { db } from '../config/db.js';
+
+export const obtenerTodos = async () => {
+    const [resultado] = await db.query(`
+        SELECT p.*, c.nombre as categoria_nombre 
+        FROM productos p 
+        INNER JOIN categorias c ON p.categoria_id = c.id 
+        ORDER BY p.fecha_alta DESC
+    `);
+    return resultado;
+};
+
+export const obtenerPorId = async (id) => {
+    const [resultado] = await db.query(`
+        SELECT p.*, c.nombre as categoria_nombre 
+        FROM productos p 
+        INNER JOIN categorias c ON p.categoria_id = c.id 
+        WHERE p.id = ?
+    `, [id]);
+    return resultado[0];
+};
+
+export const crear = async (producto) => {
+    const { nombre, precio, stock, categoria_id } = producto;
+    const [resultado] = await db.query(
+        'INSERT INTO productos (nombre, precio, stock, categoria_id) VALUES (?, ?, ?, ?)',
+        [nombre, parseFloat(precio), parseInt(stock), parseInt(categoria_id)]
+    );
+    return resultado.insertId;
+};
+
+export const actualizar = async (id, producto) => {
+    const { nombre, precio, stock, categoria_id } = producto;
+    const [resultado] = await db.query(
+        'UPDATE productos SET nombre = ?, precio = ?, stock = ?, categoria_id = ?, fecha_act = CURRENT_TIMESTAMP WHERE id = ?',
+        [nombre, parseFloat(precio), parseInt(stock), parseInt(categoria_id), id]
+    );
+    return resultado;
+};
+
+export const actualizarStock = async (id, cantidad) => {
+    const [resultado] = await db.query(
+        'UPDATE productos SET stock = stock + ?, fecha_act = CURRENT_TIMESTAMP WHERE id = ?',
+        [parseInt(cantidad), id]
+    );
+    return resultado;
+};
+
+export const eliminar = async (id) => {
+    const [resultado] = await db.query('DELETE FROM productos WHERE id = ?', [id]);
+    return resultado;
+};
+rutas.
+-categoriasRutas.js-.
+import express from 'express';
+import {
+    obtenerCategorias,
+    obtenerCategoria,
+    crearCategoria,
+    actualizarCategoria,
+    eliminarCategoria
+} from '../controladores/categoriasControlador.js';
+
+const rutas = express.Router();
+
+rutas.get('/categorias', obtenerCategorias);
+rutas.get('/categorias/:id', obtenerCategoria);
+rutas.post('/categorias', crearCategoria);
+rutas.put('/categorias/:id', actualizarCategoria);
+rutas.delete('/categorias/:id', eliminarCategoria);
+
+export default rutas;
+-productosRutas.js-.
+import express from 'express';
+import {
+    obtenerProductos,
+    obtenerProducto,
+    crearProducto,
+    actualizarProducto,
+    actualizarStockProducto,
+    eliminarProducto
+} from '../controladores/productosControlador.js';
+
+const rutas = express.Router();
+
+rutas.get('/productos', obtenerProductos);
+rutas.get('/productos/:id', obtenerProducto);
+rutas.post('/productos', crearProducto);
+rutas.put('/productos/:id', actualizarProducto);
+rutas.patch('/productos/:id/stock', actualizarStockProducto);
+rutas.delete('/productos/:id', eliminarProducto);
+
+export default rutas;
+index.js-.
+import express from 'express';
+import cors from 'cors';
+import categoriasRutas from './rutas/categoriasRutas.js';
+import productosRutas from './rutas/productosRutas.js';
+
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+app.use('/', categoriasRutas);
+app.use('/', productosRutas);
+
+const puerto = 3001;
+app.listen(puerto, () => { 
+    console.log(`Servidor en http://localhost:${puerto}`);
+});
+package.json-.
+{
+    "dependencies": {
+        "express": "^5.1.0",
+        "express-validator": "^7.3.0",
+        "mysql2": "^3.15.3",
+        "cors": "^2.8.5"
+    },
+    "devDependencies": {
+        "nodemon": "^3.1.10"
+    },
+    "name": "mauricio-pc",
+    "version": "1.0.0",
+    "type": "module",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js",
+        "dev": "nodemon index.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC"
+}
